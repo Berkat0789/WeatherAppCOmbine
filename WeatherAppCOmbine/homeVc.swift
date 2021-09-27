@@ -11,6 +11,10 @@ import Combine
 class homeVc: UIViewController {
     
     @IBOutlet weak var forecastTableView: UITableView!
+    @IBOutlet weak var cityName: UILabel!
+    @IBOutlet weak var tempLabel: UILabel!
+    @IBOutlet weak var descriptionLabel: UILabel!
+    
     
     let forecastPublisher = PassthroughSubject<Forecast, Never>()
         
@@ -24,7 +28,13 @@ class homeVc: UIViewController {
         
         let forecastSubscriber = forecastPublisher.sink { data in
             self.forecastWeather = data.results
+            //Adding one city detauls for testing
+            let newark = data.results[0]
+          
             DispatchQueue.main.async {
+                self.cityName.text = newark.location
+                self.tempLabel.text = "\(newark.tempString)℉"
+                self.descriptionLabel.text = newark.description
                 self.forecastTableView.reloadData()
             }
         }
@@ -63,9 +73,8 @@ extension homeVc: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let weather = forecastWeather[indexPath.row]
-        let foecastCell = forecastTableView.dequeueReusableCell(withIdentifier: K.cellIdandxibs.forecastCell, for: indexPath)
-        foecastCell.textLabel?.text = weather.tempString
-        foecastCell.detailTextLabel?.text = weather.location
+        guard let foecastCell = forecastTableView.dequeueReusableCell(withIdentifier: K.cellIdandxibs.forecastCell, for: indexPath) as? forecastCell else {return UITableViewCell()}
+        foecastCell.updateCell(weather: weather)
         return foecastCell
     }
     
